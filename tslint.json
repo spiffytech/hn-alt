@@ -1,10 +1,16 @@
 {
-    "defaultSeverity": "error",
+    "defaultSeverity": "warn",
     "extends": [
         "tslint:recommended",
         "typestrict"
     ],
-    "jsRules": {},
+    "jsRules": {
+        "interface-name": [true, "never-prefix"],
+        "curly": [true, "ignore-same-line"],
+        "quotemark": [true, "single"],
+        "object-literal-sort-keys": [false],
+        "variable-name": ["allow-leading-underscore", "allow-trailing-underscore"]
+    },
     "rules": {},
     "rulesDirectory": []
 }
