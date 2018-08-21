@@ -57,6 +57,8 @@ app.get('/', (_req, res) => {
           inverted such that the main link is the Hacker News comments. This
           makes it easy to share the story to Instapaper/Pocket/Wallabag.
         </p>
+
+        <p><a href="https://github.com/spiffytech/hn-alt">Source.</a></p>
       </body>
     </html>
   `);
