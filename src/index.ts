@@ -1,12 +1,15 @@
 import * as dotenv from 'dotenv';
 import express from 'express';
+import * as path from 'path';
 import RSS from 'rss';
+import serveFavicon from 'serve-favicon';
 
 dotenv.config();
 /* tslint:disable-next-line:no-var-requires */
 const RssParser = require('rss-parser');
 
 const app = express();
+app.use(serveFavicon(path.join(__dirname, 'public/favicon.ico')));
 
 if (!process.env.FEED_URL) throw new Error('Missing FEED_URL parameter');
 
@@ -45,6 +48,20 @@ function feedItemToGeneratorItem(item: FeedItem) {
   };
 }
 
+app.get('/', (_req, res) => {
+  res.send(`
+    <html>
+      <body>
+        <p>
+          At <a href="/feed">/feed</a> You can find the Hacker News feed, but
+          inverted such that the main link is the Hacker News comments. This
+          makes it easy to share the story to Instapaper/Pocket/Wallabag.
+        </p>
+      </body>
+    </html>
+  `);
+});
+
 app.get('/feed', async (_req, res) => {
   try {
     const feedOriginal = await fetchFeed();
@@ -59,6 +76,7 @@ app.get('/feed', async (_req, res) => {
     map(feedItemToGeneratorItem).
     forEach((item) => generator.item(item));
 
+    res.set('Content-Type', 'application/rss+xml');
     return res.send(generator.xml());
   } catch (ex) {
     res.statusCode = 500;
