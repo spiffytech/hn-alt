@@ -1,15 +1,21 @@
 import * as dotenv from 'dotenv';
 import express from 'express';
+import LRU from 'lru-cache';
 import * as path from 'path';
+import morgan from 'morgan';
 import RSS from 'rss';
 import serveFavicon from 'serve-favicon';
 
 dotenv.config();
+
+const cache = LRU({maxAge: 1000 * 10});;
+
 /* tslint:disable-next-line:no-var-requires */
 const RssParser = require('rss-parser');
 
 const app = express();
 app.use(serveFavicon(path.join(__dirname, 'public/favicon.ico')));
+app.use(morgan('combined'));
 
 if (!process.env.FEED_URL) throw new Error('Missing FEED_URL parameter');
 
@@ -48,6 +54,14 @@ function feedItemToGeneratorItem(item: FeedItem) {
   };
 }
 
+async function cacheGetOrSet<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const gotted: T | undefined = cache.get(key) as T;
+  if (gotted) return Promise.resolve(gotted);
+  const newValue = await fn();
+  cache.set(key, newValue);
+  return newValue;
+}
+
 app.get('/', (_req, res) => {
   res.send(`
     <html>
@@ -66,8 +80,12 @@ app.get('/', (_req, res) => {
 
 app.get('/feed', async (_req, res) => {
   try {
-    const feedOriginal = await fetchFeed();
-    const feedInverted = {...feedOriginal, items: feedOriginal.items.map(invertFeedItem)};
+    const feedInverted = await cacheGetOrSet('feed', async () => {
+      const feedOriginal = await fetchFeed();
+      const feedInverted = {...feedOriginal, items: feedOriginal.items.map(invertFeedItem)};
+      return feedInverted;
+    });
+
     const generator = new RSS({
       feed_url: process.env.FEED_URL!,
       site_url: new URL(process.env.FEED_URL!).origin,
