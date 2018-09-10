@@ -39,7 +39,7 @@ function invertFeedItem(item: FeedItem): FeedItem {
   return {
     ...item,
     comments: null,
-    content: `<a href="${item.link}">Link</a>`,
+    content: `<a href="${item.link}">${item.link}</a>`,
     contentSnippet: null,
     link: item.comments || item.link,
   };
