@@ -90,6 +90,7 @@ app.get('/feed', async (_req, res) => {
       feed_url: process.env.FEED_URL!,
       site_url: new URL(process.env.FEED_URL!).origin,
       title: 'Hacker News Alt',
+      ttl: 5
     });
 
     feedInverted.items.
