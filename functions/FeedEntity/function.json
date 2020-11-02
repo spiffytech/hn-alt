@@ -1,0 +1,10 @@
+{
+  "bindings": [
+    {
+      "name": "entity",
+      "type": "entityTrigger",
+      "direction": "in"
+    }
+  ],
+  "scriptFile": "../dist/FeedEntity/index.js"
+}
